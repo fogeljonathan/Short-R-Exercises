@@ -1,0 +1,142 @@
+---
+title: "Project 3: NFL Salary Distribution"
+author: "Jonathan Fogel"
+date: "11/20/2020"
+output: pdf_document
+---
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(error = TRUE,fig.align = "center",fig.width = 6, fig.height = 4)
+Wages<-read.csv('~/DataAndStuff/FootballSalaries.csv')
+
+Wages$AvgSalary<-as.double(Wages$AvgSalary)
+Wages$Age<-as.double(Wages$Age)
+Wages$Experience<-as.double(Wages$Experience)
+Wages$Expiration<-as.double(Wages$Expiration)
+
+outliers<-boxplot(Wages$AvgSalary, plot=FALSE)$out
+WagesNoOutliers <- Wages[-which(Wages$AvgSalary %in% outliers),]
+```
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+library(mosaic)
+```
+
+Author: Jonathan Fogel
+
+## Introduction
+
+When compared to the median salary in the US, \$50,000, salaries for professional athletes are often unfathomably large. American Football, in particular, is full of players making upwards of \$10,000,000 yearly, like Carson Wentz, who averages about \$32,000,000. With many players' contracts being available to the public, one may wonder what the distribution of salaries among NFL players may look like, and if it fits any model particularly well. In this paper, contract data compiled by Spotrac, an independent media company, will be analyzed to determine if it follows a normal distribution. A normal distribution seems appropriate because salary is a continuous variable, and it is a reasonable possibility that the salaries tend to be mostly lie near an average value.
+
+## NFL Player Salary Distribution
+
+Contracts for all current players for the Philadelphia Eagles, the Pittsburgh Steelers, and the New England Patriots were compiled, and yearly salary was calculated by dividing the total contract payment by its length. These 3 teams are being used as a sample because they are all near the average team salary for the NFL, so they will presumably be an accurate representation of the league as a whole.
+
+First, a mean and standard deviation is computed for yearly average salary.
+
+
+```{r}
+
+mean(~AvgSalary,data=Wages)
+
+sd(~AvgSalary,data=Wages)
+```
+
+So the sample mean salary for the is \$3,301,960, and the associated standard deviation is \$4,941,805. Now, the salary information is binned into equasized bins spanning the entire range. Each bin will cover \$1,000,000, starting at \$0 and ending at \$34,000,000. A histogram showing the observations in each bin is shown. To illustrate the correspondance between this and a normal distribution with appropriate mean and standard deviation, a quantile-quantile plot is also shown.
+
+```{r,echo=FALSE}
+hist(Wages$AvgSalary, breaks=34,main='Density of NFL Player Yearly Salaries',xlab='Average Yearly Salary')
+
+xqqmath(~AvgSalary,data=Wages,main='Q-Q Plot of NFL Player Yearly Salaries',ylab='Average Yearly Salary')
+```
+
+Clearly, the data does not appear normally distributed. There is a very dense section near \$800,000, and the density trails off in the positive direction. Looking at the Q-Q Plot, the data strays far away from the line, and is not linear. This also indicates that the data is not normally distributed.
+
+To quantitatively test how normal the data is, a chi-squared test is used as well. The probability density for each bin is recorded, and compared to the probability density of each range of salaries. In this test, the Null hypothesis is that the data is, in fact normally distributed, and the alternate hypothesis is that the data is not normally distributed. The results of this test are shown below. 
+
+```{r,echo=FALSE}
+Wages2<-data.frame(Counts=c(sum(Wages$AvgSalary > 0000000 & Wages$AvgSalary < 1000000),
+                 sum(Wages$AvgSalary > 1000000 & Wages$AvgSalary < 2000001),
+                 sum(Wages$AvgSalary > 2000000 & Wages$AvgSalary < 3000001),
+                 sum(Wages$AvgSalary > 3000000 & Wages$AvgSalary < 4000001),
+                 sum(Wages$AvgSalary > 4000000 & Wages$AvgSalary < 5000001),
+                 sum(Wages$AvgSalary > 5000000 & Wages$AvgSalary < 6000001),
+                 sum(Wages$AvgSalary > 6000000 & Wages$AvgSalary < 7000001),
+                 sum(Wages$AvgSalary > 7000000 & Wages$AvgSalary < 8000001),
+                 sum(Wages$AvgSalary > 8000000 & Wages$AvgSalary < 9000001),
+                 sum(Wages$AvgSalary > 9000000 & Wages$AvgSalary < 10000001),
+                 sum(Wages$AvgSalary > 10000000 & Wages$AvgSalary < 11000001),
+                 sum(Wages$AvgSalary > 11000000 & Wages$AvgSalary < 12000001),
+                 sum(Wages$AvgSalary > 12000000 & Wages$AvgSalary < 13000001),
+                 sum(Wages$AvgSalary > 13000000 & Wages$AvgSalary < 14000001),
+                 sum(Wages$AvgSalary > 14000000 & Wages$AvgSalary < 15000001),
+                 sum(Wages$AvgSalary > 15000000 & Wages$AvgSalary < 16000001),
+                 sum(Wages$AvgSalary > 16000000 & Wages$AvgSalary < 17000001),
+                 sum(Wages$AvgSalary > 17000000 & Wages$AvgSalary < 18000001),
+                 sum(Wages$AvgSalary > 18000000 & Wages$AvgSalary < 19000001),
+                 sum(Wages$AvgSalary > 19000000 & Wages$AvgSalary < 20000001),
+                 sum(Wages$AvgSalary > 20000000 & Wages$AvgSalary < 21000001),
+                 sum(Wages$AvgSalary > 21000000 & Wages$AvgSalary < 22000001),
+                 sum(Wages$AvgSalary > 22000000 & Wages$AvgSalary < 23000001),
+                 sum(Wages$AvgSalary > 23000000 & Wages$AvgSalary < 24000001),
+                 sum(Wages$AvgSalary > 24000000 & Wages$AvgSalary < 25000001),
+                 sum(Wages$AvgSalary > 25000000 & Wages$AvgSalary < 26000001),
+                 sum(Wages$AvgSalary > 26000000 & Wages$AvgSalary < 27000001),
+                 sum(Wages$AvgSalary > 27000000 & Wages$AvgSalary < 28000001),
+                 sum(Wages$AvgSalary > 28000000 & Wages$AvgSalary < 29000001),
+                 sum(Wages$AvgSalary > 29000000 & Wages$AvgSalary < 30000001),
+                 sum(Wages$AvgSalary > 30000000 & Wages$AvgSalary < 31000001),
+                 sum(Wages$AvgSalary > 31000000 & Wages$AvgSalary < 32000001),
+                 sum(Wages$AvgSalary > 32000000 & Wages$AvgSalary < 33000000),
+                 sum(Wages$AvgSalary > 33000000 & Wages$AvgSalary < 34000001)
+                 ))
+
+Wages2$Counts2<- Wages2$Counts / 193
+Wages2$NormProb<-c(
+  pnorm(1000001,mean=3301960, sd=4941805),
+  pnorm(2000001,mean=3301960, sd=4941805)-pnorm(1000000,mean=3301960, sd=4941805),
+  pnorm(3000001,mean=3301960, sd=4941805)-pnorm(2000000,mean=3301960, sd=4941805),
+  pnorm(4000001,mean=3301960, sd=4941805)-pnorm(3000000,mean=3301960, sd=4941805),
+  pnorm(5000001,mean=3301960, sd=4941805)-pnorm(4000000,mean=3301960, sd=4941805),
+  pnorm(6000001,mean=3301960, sd=4941805)-pnorm(5000000,mean=3301960, sd=4941805),
+  pnorm(7000001,mean=3301960, sd=4941805)-pnorm(6000000,mean=3301960, sd=4941805),
+  pnorm(8000001,mean=3301960, sd=4941805)-pnorm(7000000,mean=3301960, sd=4941805),
+  pnorm(9000001,mean=3301960, sd=4941805)-pnorm(8000000,mean=3301960, sd=4941805),
+  pnorm(10000001,mean=3301960, sd=4941805)-pnorm(9000000,mean=3301960, sd=4941805),
+  pnorm(11000001,mean=3301960, sd=4941805)-pnorm(10000000,mean=3301960, sd=4941805),
+  pnorm(12000001,mean=3301960, sd=4941805)-pnorm(11000000,mean=3301960, sd=4941805),
+  pnorm(13000001,mean=3301960, sd=4941805)-pnorm(12000000,mean=3301960, sd=4941805),
+  pnorm(14000001,mean=3301960, sd=4941805)-pnorm(13000000,mean=3301960, sd=4941805),
+  pnorm(15000001,mean=3301960, sd=4941805)-pnorm(14000000,mean=3301960, sd=4941805),
+  pnorm(16000001,mean=3301960, sd=4941805)-pnorm(15000000,mean=3301960, sd=4941805),
+  pnorm(17000001,mean=3301960, sd=4941805)-pnorm(16000000,mean=3301960, sd=4941805),
+  pnorm(18000001,mean=3301960, sd=4941805)-pnorm(17000000,mean=3301960, sd=4941805),
+  pnorm(19000001,mean=3301960, sd=4941805)-pnorm(18000000,mean=3301960, sd=4941805),
+  pnorm(20000001,mean=3301960, sd=4941805)-pnorm(19000000,mean=3301960, sd=4941805),
+  pnorm(21000001,mean=3301960, sd=4941805)-pnorm(20000000,mean=3301960, sd=4941805),
+  pnorm(22000001,mean=3301960, sd=4941805)-pnorm(21000000,mean=3301960, sd=4941805),
+  pnorm(23000001,mean=3301960, sd=4941805)-pnorm(22000000,mean=3301960, sd=4941805),
+  pnorm(24000001,mean=3301960, sd=4941805)-pnorm(23000000,mean=3301960, sd=4941805),
+  pnorm(25000001,mean=3301960, sd=4941805)-pnorm(24000000,mean=3301960, sd=4941805),
+  pnorm(26000001,mean=3301960, sd=4941805)-pnorm(25000000,mean=3301960, sd=4941805),
+  pnorm(27000001,mean=3301960, sd=4941805)-pnorm(26000000,mean=3301960, sd=4941805),
+  pnorm(28000001,mean=3301960, sd=4941805)-pnorm(27000000,mean=3301960, sd=4941805),
+  pnorm(29000001,mean=3301960, sd=4941805)-pnorm(28000000,mean=3301960, sd=4941805),
+  pnorm(30000001,mean=3301960, sd=4941805)-pnorm(29000000,mean=3301960, sd=4941805),
+  pnorm(31000001,mean=3301960, sd=4941805)-pnorm(30000000,mean=3301960, sd=4941805),
+  pnorm(32000001,mean=3301960, sd=4941805)-pnorm(31000000,mean=3301960, sd=4941805),
+  pnorm(33000001,mean=3301960, sd=4941805)-pnorm(32000000,mean=3301960, sd=4941805),
+  pnorm(34000001,mean=3301960, sd=4941805)-pnorm(33000000,mean=3301960, sd=4941805)
+                 )
+```
+
+```{r}
+chisq.test(x=Wages2$Counts2, rescale.p = TRUE, p=Wages2$NormProb)
+```
+
+The p-value is extremely small, and well under 0.05. This means we can confidently reject the null hypothesis at a 95 percent confidence level. So we are confident that reject the idea that the data is normally distributed.
+
+
+## Conclusion
+
+Using a chi-squared test, there is evidence that the salaries of NFL Players are not normally distributed.

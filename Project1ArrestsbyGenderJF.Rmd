@@ -1,0 +1,84 @@
+---
+title: "Disorderly Conduct Arrests by Sex"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(error = TRUE,fig.align = "center",fig.width = 6, fig.height = 4)
+Arrests<-read.csv('~/DataAndStuff/Disorderlyconductarrests.csv')
+```
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+library(mosaic)
+```
+
+Author: Jonathan Fogel
+
+## Introduction
+
+The term "Disorderly Conduct" is used to describe behavior that is generally unruly or that "disturbs the peace." Certain countries, incuding the US, China, and Taiwan, actually criminalize "disorderly conduct" by law. In the US, there are hundreds of thousands of disorderly conduct arrests every year.
+
+Disorderly conduct arrests can be the response to all sorts of actions and behaviors, ranging from public drunkenness to loitering. With such a wide variety of behaviors and severities under this umbrella term, the decision of whether a behavior is punished with an arrest is largely up to the police officer responding, and the social temperature of the situation. 
+
+There are many variables that may influence the number of disorderly conduct arrests made each year, such as the socioeconomic status of the perpetrator, crime rate in the area, sex of the perpetrator, etc. In this paper, analysis of arrest data will be used to determine if there is a difference in the ammount, and variability, of arrests between males and females in the US.
+
+## Variability of Arrests by Sex
+
+
+The US Department of Justice's Office of Justice Programs releases data on many crimes and the number of arrests made in their name for different groups in the US yearly. This data is the most reliable of its kind, as it is directly from the Department of Justice, and can be found at https://www.ojjdp.gov/ .
+
+
+The total number of US disordery conduct arrests by sex, for every year between 1980 and 2018, is shown below. Note the distinct difference between the number of males and females arrested, with males having signifigantly higher arrests for every year shown. Also shown is the data's corresponding distribution, by sex, in the form of a box plot. 
+
+```{r,echo=FALSE,results='hide'}
+
+sd(DisorderlyConductArrests~Sex,data=Arrests)
+mean(DisorderlyConductArrests~Sex,data=Arrests)
+
+```
+```{r,echo=FALSE}
+xyplot(DisorderlyConductArrests~Year,data=Arrests, pch=16,cex=0.5,ylab='Disorderly Conduct Arrests',group=Sex,xlab='Year', auto.key = TRUE,title = 'US Disorderly Conduct Arrests by year')
+
+boxplot(DisorderlyConductArrests~Sex,data=Arrests, horizontal = TRUE,xlab='Disorderly Conduct Arrests')
+
+```
+
+Not only is there consitently more male arrests, but males also had a much wider distribution. The standard deviation for females of this set was 24885.71 arrests, and 126353.22 arrests for males. The male arrests' standard deviation is large, being over five times that of the female arrests. 
+
+Clearly, however, there are trends occuring for both the male and female arrests. The female arrests have little variation, however it seems that there is a slight upward trend. The male arrests appear greatly varied until about 2000, where it then follows a short upward trend followed by a decreasing trend until 2018. To better understand each set, a linear model is then fit to each data set seperately. The original data superimposed with these fits is shown below.
+
+```{r,echo=FALSE}
+model1=lm(DisorderlyConductArrests~Year+Sex+Sex*Year, data= Arrests)
+
+xyplot(DisorderlyConductArrests+fitted(model1)~Year,data=Arrests, pch=16,cex=0.5,ylab='Disorderly Conduct Arrests',xlab='Year', auto.key = TRUE,title = 'US Disorderly Conduct Arrests by year')
+```
+```{r,echo=FALSE,results='hide'}
+coef(model1)
+```
+
+The model predicts the number of arrests for each group to be as follows, where F is the number of female arrests that year, and M is the number of male arrests that year:
+
+
+F = -496683.1883 + 320.9413 x year
+
+M = 20499185.8124 - 10070.6518 x year
+
+
+
+```{r,echo=FALSE, results='hide'}
+Arrests$Res=Arrests$DisorderlyConductArrests-Arrests$Predictions
+sd(Res~Sex, data=Arrests)
+
+60175.86 /24615.21
+```
+
+
+The residuals(recorded value-model prediction) for each group are now analyzed instead. The standard deviation for female arrest residuals was 24615.21  arrests, and 60175.86 arrests for male arrest residuals. The standard deviation for the female residuals is almost equivelent to that of the raw female data. This is because the model only predicts about 320 more arrests from year to year, effectively making the prediction act like a constant. The male residuals' standard deviation is still more than twice that of the female residuals.
+
+## Conclusion
+
+There is a distinct difference in how males and females are being arrested for disorderly conduct in the US. Males consistantly have higher numbers of arrests, but this number also has much higher variation. One interesting discovery is that the data suggests that while male arrests are decreasing by about 10000 arrests per year, female arrests are slightly increasing each year.
+
+The reasons for these trends are unclear. An analysis of similar data, using a representation of economic status could possibly reveal more information. To further these findings, this analysis should compare the number of arrests with both sex and yearly income, to determine how US citizens are being arrested for this crime.
